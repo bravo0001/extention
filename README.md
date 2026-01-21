@@ -1,0 +1,294 @@
+# SafeSpeakAI Chrome Extension
+
+**Real-time toxicity moderation for WhatsApp Web and Discord** - Like Grammarly, but for kindness.
+
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
+## 🌟 Features
+
+- ✨ **Real-time Toxicity Detection** - Analyzes messages as you type
+- 🔄 **Smart Text Rephrasing** - Suggests polite alternatives to toxic language
+- 🎨 **Premium UI** - Beautiful glassmorphism design with smooth animations
+- 🌐 **Multi-Platform** - Works on WhatsApp Web and Discord
+- 🐍 **Python Backend** - Advanced ML-based analysis with web scraping capabilities
+- 🔌 **Offline Fallback** - Works even when backend is unavailable
+
+## 📋 Table of Contents
+
+- [Installation](#installation)
+- [Backend Setup](#backend-setup)
+- [Usage](#usage)
+- [Architecture](#architecture)
+- [Development](#development)
+- [API Documentation](#api-documentation)
+- [Contributing](#contributing)
+
+## 🚀 Installation
+
+### Extension Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/safespeakai.git
+   cd safespeakai
+   ```
+
+2. **Load the extension in Chrome**
+   - Open Chrome and navigate to `chrome://extensions/`
+   - Enable "Developer mode" (toggle in top right)
+   - Click "Load unpacked"
+   - Select the `safespeakai` folder
+
+3. **Verify installation**
+   - You should see "SafeChat" in your extensions list
+   - The extension icon should appear in your toolbar
+
+## 🐍 Backend Setup
+
+### Prerequisites
+
+- Python 3.9 or higher
+- pip (Python package manager)
+
+### Installation Steps
+
+1. **Navigate to backend directory**
+   ```bash
+   cd backend
+   ```
+
+2. **Create virtual environment** (recommended)
+   ```bash
+   python -m venv venv
+   
+   # Windows
+   venv\\Scripts\\activate
+   
+   # macOS/Linux
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure environment variables** (optional)
+   ```bash
+   cp .env.example .env
+   # Edit .env with your API keys if using external services
+   ```
+
+5. **Start the backend server**
+   ```bash
+   python app.py
+   ```
+
+   You should see:
+   ```
+   🚀 SafeSpeakAI Backend starting on http://localhost:5000
+   📡 CORS enabled for: https://web.whatsapp.com, https://discord.com, chrome-extension://*
+   🔧 Debug mode: True
+   ```
+
+## 💡 Usage
+
+### On WhatsApp Web
+
+1. Open [WhatsApp Web](https://web.whatsapp.com)
+2. Start typing a message
+3. If toxic language is detected, you'll see a warning icon
+4. Click the icon to see suggested alternatives
+5. Click "Apply" to use the polite version
+
+### On Discord
+
+1. Open [Discord](https://discord.com)
+2. Navigate to any channel
+3. Type a message in the input field
+4. The extension works the same way as WhatsApp
+
+### How It Works
+
+1. **Type** - As you type, the extension monitors your text
+2. **Analyze** - Text is analyzed for toxic content (locally or via backend)
+3. **Alert** - If toxicity is detected, a pulsing icon appears
+4. **Suggest** - Click the icon to see polite alternatives
+5. **Apply** - Accept the suggestion or dismiss it
+
+## 🏗️ Architecture
+
+```
+SafeSpeakAI/
+├── manifest.json           # Extension configuration
+├── background.js           # Service worker
+├── modules/
+│   ├── toxicity-detector.js   # Toxicity detection logic
+│   └── rephraser.js           # Text rephrasing logic
+├── content-scripts/
+│   ├── common.js              # Shared utilities
+│   ├── whatsapp.js            # WhatsApp integration
+│   └── discord.js             # Discord integration
+├── ui/
+│   └── styles.css             # Premium UI styles
+├── backend/
+│   ├── app.py                 # Flask API server
+│   ├── toxicity_analyzer.py   # ML-based toxicity detection
+│   ├── text_rephraser.py      # AI-powered rephrasing
+│   ├── scraper.py             # Web scraping utilities
+│   └── config.py              # Configuration
+└── icons/                     # Extension icons
+```
+
+### Data Flow
+
+```mermaid
+graph LR
+    A[User Types] --> B[Content Script]
+    B --> C{Backend Available?}
+    C -->|Yes| D[Python Backend]
+    C -->|No| E[Local Detection]
+    D --> F[ML Analysis]
+    E --> F
+    F --> G[Show Warning]
+    G --> H[User Clicks]
+    H --> I[Show Suggestion]
+    I --> J[Apply/Dismiss]
+```
+
+## 🛠️ Development
+
+### Project Structure
+
+- **Extension Files** - JavaScript modules for browser integration
+- **Backend Files** - Python Flask API for advanced processing
+- **UI Files** - CSS with glassmorphism and modern design
+
+### Key Technologies
+
+**Frontend:**
+- Vanilla JavaScript (ES6+)
+- Chrome Extension Manifest V3
+- CSS3 with modern features (glassmorphism, gradients)
+
+**Backend:**
+- Flask (Python web framework)
+- BeautifulSoup4 (web scraping)
+- Selenium (dynamic content scraping)
+
+### Adding New Platforms
+
+To add support for a new platform:
+
+1. Create a new content script in `content-scripts/`
+2. Add platform-specific selectors
+3. Update `manifest.json` to include the new script
+4. Test thoroughly
+
+### Customizing Toxicity Detection
+
+Edit `backend/toxicity_analyzer.py` to:
+- Add new toxic keywords
+- Adjust severity scores
+- Modify context analysis
+
+### Customizing Rephrasing
+
+Edit `backend/text_rephraser.py` to:
+- Add new rephrasing rules
+- Customize suggestions
+- Integrate with AI APIs
+
+## 📚 API Documentation
+
+See [backend/API.md](backend/API.md) for detailed API documentation.
+
+### Quick Reference
+
+**Check Toxicity**
+```bash
+POST http://localhost:5000/api/check-toxicity
+Content-Type: application/json
+
+{
+  "text": "your message here"
+}
+```
+
+**Rephrase Text**
+```bash
+POST http://localhost:5000/api/rephrase
+Content-Type: application/json
+
+{
+  "text": "you are stupid",
+  "keywords": ["stupid"]
+}
+```
+
+## 🔧 Configuration
+
+### Extension Settings
+
+Edit `manifest.json` to:
+- Change permissions
+- Add new platforms
+- Modify content script injection
+
+### Backend Settings
+
+Edit `backend/config.py` to:
+- Change API host/port
+- Adjust toxicity thresholds
+- Configure CORS origins
+
+## 🐛 Troubleshooting
+
+### Extension Not Working
+
+1. Check if extension is enabled in `chrome://extensions/`
+2. Reload the extension
+3. Check browser console for errors (F12)
+
+### Backend Not Connecting
+
+1. Ensure backend is running on `localhost:5000`
+2. Check firewall settings
+3. Verify CORS configuration
+
+### No Warning Icon Appearing
+
+1. Check if you're on a supported platform (WhatsApp/Discord)
+2. Try typing a clearly toxic phrase (e.g., "you are stupid")
+3. Check content script console logs
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+MIT License - See LICENSE file for details
+
+## 🙏 Acknowledgments
+
+- Inspired by Grammarly's real-time writing assistance
+- Built with modern web technologies
+- Designed for promoting positive online communication
+
+## 📞 Support
+
+For issues, questions, or suggestions:
+- Open an issue on GitHub
+- Contact: your-email@example.com
+
+---
+
+**Made with ❤️ for a kinder internet**

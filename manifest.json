@@ -1,0 +1,71 @@
+{
+  "manifest_version": 3,
+  "name": "SafeChat",
+  "version": "1.0.0",
+  "description": "Real-time toxicity moderation for WhatsApp Web and Discord - like Grammarly but for kindness",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://web.whatsapp.com/*",
+    "https://discord.com/*",
+    "http://localhost:5000/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://web.whatsapp.com/*"
+      ],
+      "js": [
+        "ui/icons.js",
+        "modules/toxicity-detector.js",
+        "modules/rephraser.js",
+        "content-scripts/common.js",
+        "content-scripts/whatsapp.js"
+      ],
+      "css": [
+        "ui/styles.css",
+        "ui/inline-button.css"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://discord.com/*"
+      ],
+      "js": [
+        "ui/icons.js",
+        "modules/toxicity-detector.js",
+        "modules/rephraser.js",
+        "content-scripts/common.js",
+        "content-scripts/discord.js"
+      ],
+      "css": [
+        "ui/styles.css",
+        "ui/inline-button.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "ui/*",
+        "icons/*"
+      ],
+      "matches": [
+        "https://web.whatsapp.com/*",
+        "https://discord.com/*"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,268 @@
+/**
+ * SafeChat Inline Button Styles
+ * Platform-specific styling for typing bar integration
+ */
+
+/* Common button styles */
+.safechat-inline-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    padding: 8px;
+    margin: 0 4px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+    position: relative;
+    outline: none;
+    z-index: 100;
+}
+
+.safechat-inline-button:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);
+}
+
+.safechat-inline-button:active {
+    transform: scale(0.95);
+}
+
+.safechat-inline-button.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* Icon container */
+.safechat-inline-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+/* State-specific styles */
+.safechat-inline-button.state-clean .safechat-inline-icon {
+    animation: safechat-pulse-green 2s ease-in-out infinite;
+}
+
+.safechat-inline-button.state-warning .safechat-inline-icon {
+    animation: safechat-pulse-yellow 1.5s ease-in-out infinite;
+}
+
+.safechat-inline-button.state-danger .safechat-inline-icon {
+    animation: safechat-pulse-red 1s ease-in-out infinite;
+}
+
+.safechat-inline-button.state-processing .safechat-inline-icon {
+    animation: safechat-rotate 1s linear infinite;
+}
+
+/* Pulse animations */
+@keyframes safechat-pulse-green {
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 0 rgba(16, 185, 129, 0));
+    }
+
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4));
+    }
+}
+
+@keyframes safechat-pulse-yellow {
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 0 rgba(245, 158, 11, 0));
+    }
+
+    50% {
+        transform: scale(1.1);
+        filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
+    }
+}
+
+@keyframes safechat-pulse-red {
+
+    0%,
+    100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0));
+    }
+
+    50% {
+        transform: scale(1.15);
+        filter: drop-shadow(0 0 16px rgba(239, 68, 68, 0.8));
+    }
+}
+
+@keyframes safechat-rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tooltip */
+.safechat-inline-tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: 1000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.safechat-inline-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: rgba(0, 0, 0, 0.9);
+}
+
+.safechat-inline-button:hover .safechat-inline-tooltip {
+    opacity: 1;
+}
+
+/* Success animation when text is fixed */
+@keyframes safechat-success-flash {
+
+    0%,
+    100% {
+        background: transparent;
+    }
+
+    50% {
+        background: rgba(16, 185, 129, 0.2);
+    }
+}
+
+.safechat-inline-button.success-flash {
+    animation: safechat-success-flash 0.6s ease;
+}
+
+/* WhatsApp-specific styles */
+.safechat-whatsapp-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.safechat-whatsapp-button:hover {
+    background: rgba(11, 20, 26, 0.08);
+}
+
+/* Discord-specific styles */
+.safechat-discord-button {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+}
+
+.safechat-discord-button:hover {
+    background: rgba(78, 80, 88, 0.6);
+}
+
+/* Badge for toxicity level */
+.safechat-toxicity-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid white;
+    animation: safechat-badge-pulse 1s ease-in-out infinite;
+}
+
+.safechat-toxicity-badge.level-warning {
+    background: #f59e0b;
+}
+
+.safechat-toxicity-badge.level-danger {
+    background: #ef4444;
+}
+
+@keyframes safechat-badge-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+/* Spinner for processing state */
+.safechat-spinner {
+    animation: safechat-spin 1s linear infinite;
+    transform-origin: center;
+}
+
+@keyframes safechat-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Text replacement animation */
+@keyframes safechat-text-highlight {
+    0% {
+        background: rgba(16, 185, 129, 0);
+    }
+
+    50% {
+        background: rgba(16, 185, 129, 0.3);
+    }
+
+    100% {
+        background: rgba(16, 185, 129, 0);
+    }
+}
+
+/* Ripple effect on click */
+.safechat-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    transform: scale(0);
+    animation: safechat-ripple-effect 0.6s ease-out;
+    pointer-events: none;
+}
+
+@keyframes safechat-ripple-effect {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
