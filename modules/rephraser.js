@@ -175,20 +175,17 @@ class PhraseRephraser {
      */
     async rephraseViaAPI(text, keywords = []) {
         try {
-            const response = await fetch('http://localhost:5000/api/rephrase', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ text, keywords })
+            // Send message to background script to proxy the API call avoid Mixed Content issues
+            const response = await chrome.runtime.sendMessage({
+                type: 'REPHRASE_TEXT',
+                text: text,
+                keywords: keywords
             });
 
-            if (response.ok) {
-                const data = await response.json();
-                return data.rephrased;
+            if (response && response.rephrased) {
+                return response.rephrased;
             } else {
-                // Fallback to local rephrasing
-                console.warn('SafeChat: API unavailable, using local rephrasing');
+                console.warn('SafeChat: API unavailable (via background), using local rephrasing');
                 return this.rephrase(text, keywords);
             }
         } catch (error) {

@@ -3,76 +3,127 @@
  * Premium modern design with glassmorphism and vibrant aesthetics
  */
 
-/* Floating Overlay Icon */
-.safechat-overlay {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 50%;
-  cursor: pointer;
-  z-index: 999999;
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
-  display: flex;
+/* INLINE BUTTON - CRITICAL VISIBILITY OVERRIDES */
+#safechat-inline-button {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  z-index: 9999 !important;
+  position: relative !important;
+  margin: 0 8px !important;
   align-items: center;
   justify-content: center;
-  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  animation: safechat-pulse 2.5s ease-in-out infinite;
-  backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border: none;
+  background: transparent;
+  flex-shrink: 0;
+  /* Prevent shrinking in flex containers */
 }
 
-.safechat-overlay:hover {
+#safechat-inline-button:hover {
   transform: scale(1.15) rotate(5deg);
-  box-shadow: 0 12px 48px rgba(102, 126, 234, 0.6);
 }
 
-.safechat-overlay-icon {
-  width: 24px;
-  height: 24px;
-  fill: #ffffff;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+/* State-based colors for inline button */
+#safechat-inline-button.safechat-state-clean svg {
+  fill: #48bb78;
+  /* Green */
+  filter: drop-shadow(0 2px 4px rgba(72, 187, 120, 0.3));
 }
 
-/* Enhanced pulse animation */
-@keyframes safechat-pulse {
+#safechat-inline-button.safechat-state-warning svg {
+  fill: #ed8936;
+  /* Orange */
+  filter: drop-shadow(0 2px 4px rgba(237, 137, 54, 0.3));
+  animation: safechat-pulse-warning 2s infinite;
+}
 
-  0%,
-  100% {
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+#safechat-inline-button.safechat-state-danger svg {
+  fill: #f56565;
+  /* Red */
+  filter: drop-shadow(0 2px 4px rgba(245, 101, 101, 0.3));
+  animation: safechat-pulse-danger 1.5s infinite;
+}
+
+#safechat-inline-button.safechat-state-processing svg {
+  fill: #4299e1;
+  /* Blue */
+  animation: safechat-spin 1s linear infinite;
+}
+
+#safechat-inline-button svg {
+  width: 20px;
+  height: 20px;
+  transition: all 0.3s ease;
+}
+
+/* Tooltip - Adjusted for Inline Use */
+.safechat-tooltip {
+  position: absolute;
+  min-width: 320px;
+  max-width: 400px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 16px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 10000;
+  /* Higher than WhatsApp modals */
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+  animation: safechat-tooltip-appear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: #2d3748;
+}
+
+/* Animations */
+@keyframes safechat-pulse-warning {
+  0% {
     transform: scale(1);
   }
 
   50% {
-    box-shadow: 0 8px 48px rgba(102, 126, 234, 0.7), 0 0 0 8px rgba(102, 126, 234, 0.1);
-    transform: scale(1.05);
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
   }
 }
 
-/* Tooltip Container - Glassmorphism Design */
-.safechat-tooltip {
-  position: absolute;
-  min-width: 380px;
-  max-width: 500px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 20px;
-  box-shadow:
-    0 20px 60px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-  z-index: 1000000;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  animation: safechat-tooltip-appear 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  overflow: hidden;
+@keyframes safechat-pulse-danger {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(245, 101, 101, 0.4);
+  }
+
+  70% {
+    transform: scale(1.1);
+    box-shadow: 0 0 0 10px rgba(245, 101, 101, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(245, 101, 101, 0);
+  }
+}
+
+@keyframes safechat-spin {
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes safechat-tooltip-appear {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.9);
+    transform: translateY(10px) scale(0.95);
   }
 
   to {
@@ -81,293 +132,87 @@
   }
 }
 
-/* Tooltip Header - Gradient Design */
+/* Tooltip Header */
 .safechat-tooltip-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-  padding: 16px 20px;
-  border-radius: 20px 20px 0 0;
-  font-weight: 700;
-  font-size: 15px;
+  color: white;
+  padding: 12px 16px;
+  border-radius: 16px 16px 0 0;
+  font-weight: 600;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  position: relative;
-  overflow: hidden;
-}
-
-.safechat-tooltip-header::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(45deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent);
-  transform: rotate(45deg);
-  animation: safechat-shimmer 3s infinite;
-}
-
-@keyframes safechat-shimmer {
-  0% {
-    transform: translateX(-100%) translateY(-100%) rotate(45deg);
-  }
-
-  100% {
-    transform: translateX(100%) translateY(100%) rotate(45deg);
-  }
+  align-items: center;
 }
 
 .safechat-tooltip-close {
   background: rgba(255, 255, 255, 0.2);
   border: none;
-  color: #ffffff;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
   cursor: pointer;
-  font-size: 22px;
-  line-height: 1;
-  padding: 0;
-  width: 32px;
-  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  z-index: 1;
+  font-size: 16px;
 }
 
-.safechat-tooltip-close:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: rotate(90deg);
-}
-
-/* Tooltip Content */
 .safechat-tooltip-content {
-  padding: 20px;
-}
-
-.safechat-text-section {
-  margin-bottom: 18px;
-}
-
-.safechat-text-label {
-  font-size: 11px;
-  text-transform: uppercase;
-  font-weight: 700;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 8px;
-  letter-spacing: 1px;
+  padding: 16px;
 }
 
 .safechat-text-box {
-  padding: 14px 16px;
-  border-radius: 12px;
-  font-size: 14px;
-  line-height: 1.6;
-  word-wrap: break-word;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.safechat-text-box:hover {
-  transform: translateX(4px);
-}
-
-.safechat-original-text {
-  background: linear-gradient(135deg, #fff5f5 0%, #ffe5e5 100%);
-  border-left: 4px solid #ff6b6b;
-  color: #2d3748;
-  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.1);
+  background: #f7fafc;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  border-left: 3px solid #cbd5e0;
 }
 
 .safechat-rephrased-text {
-  background: linear-gradient(135deg, #f0fff4 0%, #e6ffed 100%);
-  border-left: 4px solid #51cf66;
-  color: #2d3748;
-  box-shadow: 0 4px 12px rgba(81, 207, 102, 0.1);
+  background: #f0fff4;
+  border-left-color: #48bb78;
 }
 
-.safechat-keywords {
-  margin-top: 12px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+.safechat-original-text {
+  background: #fff5f5;
+  border-left-color: #f56565;
 }
 
-.safechat-keyword-tag {
-  display: inline-flex;
-  align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  transition: all 0.3s ease;
-}
-
-.safechat-keyword-tag:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-}
-
-/* Tooltip Actions */
 .safechat-tooltip-actions {
-  padding: 0 20px 20px;
+  padding: 0 16px 16px;
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .safechat-btn {
   flex: 1;
-  padding: 14px 20px;
+  padding: 10px;
   border: none;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  position: relative;
-  overflow: hidden;
+  font-weight: 600;
+  transition: transform 0.1s;
 }
 
-.safechat-btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 0;
-  height: 0;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
-  transform: translate(-50%, -50%);
-  transition: width 0.6s, height 0.6s;
-}
-
-.safechat-btn:hover::before {
-  width: 300px;
-  height: 300px;
+.safechat-btn:active {
+  transform: scale(0.98);
 }
 
 .safechat-btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: #ffffff;
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
-}
-
-.safechat-btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.5);
-}
-
-.safechat-btn-primary:active {
-  transform: translateY(-1px);
+  background: #667eea;
+  color: white;
 }
 
 .safechat-btn-secondary {
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
-  border: 2px solid rgba(102, 126, 234, 0.3);
+  background: #edf2f7;
+  color: #4a5568;
 }
 
-.safechat-btn-secondary:hover {
-  background: rgba(102, 126, 234, 0.15);
-  border-color: rgba(102, 126, 234, 0.5);
-  transform: translateY(-2px);
-}
-
-/* Arrow pointing to input */
-.safechat-tooltip::after {
-  content: '';
-  position: absolute;
-  bottom: -12px;
-  left: 30px;
-  width: 24px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  transform: rotate(45deg);
-  border-right: 1px solid rgba(255, 255, 255, 0.5);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Positioning variants */
-.safechat-tooltip.position-top::after {
-  bottom: -12px;
-  top: auto;
-}
-
-.safechat-tooltip.position-bottom::after {
-  top: -12px;
-  bottom: auto;
-  transform: rotate(-135deg);
-  border-right: none;
-  border-bottom: none;
-  border-left: 1px solid rgba(255, 255, 255, 0.5);
-  border-top: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-/* Loading state */
-.safechat-loading {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid rgba(102, 126, 234, 0.2);
-  border-top-color: #667eea;
-  border-radius: 50%;
-  animation: safechat-spin 0.8s linear infinite;
-}
-
-@keyframes safechat-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Fade out animation */
-.safechat-fade-out {
-  animation: safechat-fade-out 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
-}
-
-@keyframes safechat-fade-out {
-  to {
-    opacity: 0;
-    transform: scale(0.85) translateY(-10px);
-  }
-}
-
-/* Responsive */
-@media (max-width: 480px) {
-  .safechat-tooltip {
-    min-width: 320px;
-    max-width: 95vw;
-  }
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .safechat-tooltip {
-    background: rgba(30, 30, 40, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .safechat-text-box {
-    color: #e2e8f0;
-  }
-
-  .safechat-original-text {
-    background: linear-gradient(135deg, #3a2a2a 0%, #4a2a2a 100%);
-  }
-
-  .safechat-rephrased-text {
-    background: linear-gradient(135deg, #2a3a2a 0%, #2a4a2a 100%);
-  }
+/* Flex row fixer for generic fallback container */
+.safechat-flex-row-fix {
+  display: flex !important;
+  align-items: center !important;
+  flex-direction: row !important;
 }

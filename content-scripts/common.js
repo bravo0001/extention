@@ -266,27 +266,129 @@ class TextReplacer {
      * @param {string} newText - New text to set
      */
     static replaceContentEditableText(element, newText) {
-        // Store cursor position (simplified - at the end)
-        const range = document.createRange();
-        const selection = window.getSelection();
+        console.log('SafeChat: Replacing contenteditable text');
+        console.log('SafeChat: Element:', element);
+        console.log('SafeChat: New text:', newText);
 
-        // Clear existing content
-        element.textContent = newText;
+        // APPROACH 1: Direct React state manipulation
+        // Find React's internal properties
+        const reactPropsKey = Object.keys(element).find(key =>
+            key.startsWith('__reactProps') ||
+            key.startsWith('__reactInternalInstance') ||
+            key.startsWith('__reactFiber')
+        );
 
-        // Set cursor to end
-        range.selectNodeContents(element);
-        range.collapse(false);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        if (reactPropsKey) {
+            console.log('SafeChat: Found React key:', reactPropsKey);
+            const reactInstance = element[reactPropsKey];
+            console.log('SafeChat: React instance:', reactInstance);
+        }
 
-        // Trigger input events to notify the platform's JavaScript
-        element.dispatchEvent(new Event('input', { bubbles: true }));
-        element.dispatchEvent(new Event('change', { bubbles: true }));
-        element.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }));
-        element.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+        // APPROACH 2: Use native setter to bypass React
+        // This is the most reliable method for React apps
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+            window.HTMLDivElement.prototype,
+            'textContent'
+        );
 
-        // Focus the element
+        const nativeInputValueGetter = Object.getOwnPropertyDescriptor(
+            window.HTMLDivElement.prototype,
+            'textContent'
+        );
+
+        // Focus first
         element.focus();
+        console.log('SafeChat: Element focused');
+
+        // Select all content
+        document.execCommand('selectAll', false, null);
+        console.log('SafeChat: Content selected');
+
+        // Delete selected content
+        document.execCommand('delete', false, null);
+        console.log('SafeChat: Content deleted');
+
+        // Insert new text using execCommand (this triggers proper events)
+        document.execCommand('insertText', false, newText);
+        console.log('SafeChat: New text inserted via execCommand');
+
+        // If execCommand didn't work, fallback to manual method
+        if (element.textContent !== newText) {
+            console.warn('SafeChat: execCommand failed, using fallback');
+
+            // Clear element
+            element.textContent = '';
+
+            // Create text node
+            const textNode = document.createTextNode(newText);
+            element.appendChild(textNode);
+
+            // Set cursor at end
+            const range = document.createRange();
+            const selection = window.getSelection();
+            range.setStart(textNode, newText.length);
+            range.setEnd(textNode, newText.length);
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            // Use native setter to trigger React
+            if (nativeInputValueSetter && nativeInputValueSetter.set) {
+                nativeInputValueSetter.set.call(element, newText);
+                console.log('SafeChat: Native setter used');
+            }
+
+            // Dispatch comprehensive events
+            const events = [
+                new InputEvent('beforeinput', {
+                    bubbles: true,
+                    cancelable: true,
+                    inputType: 'insertText',
+                    data: newText,
+                    composed: true
+                }),
+                new InputEvent('input', {
+                    bubbles: true,
+                    cancelable: false,
+                    inputType: 'insertText',
+                    data: newText,
+                    composed: true
+                }),
+                new Event('change', { bubbles: true, composed: true }),
+                new KeyboardEvent('keydown', { bubbles: true, composed: true }),
+                new KeyboardEvent('keyup', { bubbles: true, composed: true }),
+                new Event('input', { bubbles: true, composed: true })
+            ];
+
+            events.forEach(event => {
+                element.dispatchEvent(event);
+            });
+
+            console.log('SafeChat: Events dispatched');
+        }
+
+        // Force React to update by triggering a blur and focus
+        element.blur();
+        setTimeout(() => {
+            element.focus();
+
+            // Set cursor to end again
+            const range = document.createRange();
+            const selection = window.getSelection();
+            const textNode = element.firstChild;
+
+            if (textNode && textNode.nodeType === Node.TEXT_NODE) {
+                range.setStart(textNode, textNode.length);
+                range.setEnd(textNode, textNode.length);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            }
+
+            console.log('SafeChat: Element refocused');
+        }, 50);
+
+        console.log('SafeChat: Text replaced, element should be fully editable');
+        console.log('SafeChat: Final element content:', element.textContent);
+        console.log('SafeChat: Final element innerHTML:', element.innerHTML);
     }
 }
 
@@ -436,35 +538,65 @@ class InlineButtonManager {
         e.preventDefault();
         e.stopPropagation();
 
+        console.log('SafeChat: Button clicked, current state:', this.currentState);
+
         // Only allow click if toxic
         if (this.currentState !== 'warning' && this.currentState !== 'danger') {
+            console.log('SafeChat: Button clicked but text is not toxic (state:', this.currentState, ')');
             return;
         }
 
         if (!this.currentInputField || !this.currentToxicityInfo) {
+            console.error('SafeChat: Missing input field or toxicity info');
             return;
         }
 
         console.log('SafeChat: Fixing toxic text...');
+        console.log('SafeChat: Current toxicity info:', this.currentToxicityInfo);
 
         // Get current text
         const currentText = this.currentInputField.textContent || this.currentInputField.value || '';
+        console.log('SafeChat: Current text to rephrase:', currentText);
+
+        if (!currentText || currentText.trim().length === 0) {
+            console.error('SafeChat: No text to rephrase!');
+            return;
+        }
 
         // Set processing state
         this.setProcessing();
 
         try {
-            // Get rephrased text
-            const suggestion = await phraseRephraser.getSuggestionWithAPI(currentText, this.currentToxicityInfo, true);
+            // Get rephrased text - use rephraseViaAPI which has fallback
+            let rephrasedText;
+
+            if (typeof phraseRephraser !== 'undefined' && phraseRephraser.rephraseViaAPI) {
+                // Try API first
+                const keywords = this.currentToxicityInfo.keywords || [];
+                console.log('SafeChat: Calling rephraseViaAPI with keywords:', keywords);
+                rephrasedText = await phraseRephraser.rephraseViaAPI(currentText, keywords);
+                console.log('SafeChat: Rephrased text received:', rephrasedText);
+            } else {
+                console.error('SafeChat: phraseRephraser not available');
+                throw new Error('Rephraser not available');
+            }
+
+            if (!rephrasedText || rephrasedText.trim().length === 0) {
+                console.error('SafeChat: Rephrased text is empty!');
+                throw new Error('Rephrased text is empty');
+            }
 
             // Replace text with animation
-            await this.replaceTextWithAnimation(suggestion.rephrased);
+            console.log('SafeChat: Starting text replacement animation...');
+            await this.replaceTextWithAnimation(rephrasedText);
 
             // Show success
             this.showSuccess();
 
             // Update to clean state
             this.updateState({ isToxic: false });
+
+            console.log('SafeChat: Text replacement complete!');
 
         } catch (error) {
             console.error('SafeChat: Error fixing text:', error);

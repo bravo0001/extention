@@ -82,21 +82,58 @@ function findButtonContainer() {
         };
     }
 
-    // Fallback: Look for the input field's parent container
-    let container = inputField.parentElement;
+    // Strategy 1: Look for the form element (Discord wraps input in a form)
+    let container = inputField.closest('form');
+    if (container) {
+        // Look for button container within the form
+        const buttonContainer = container.querySelector('[class*="buttons"]') ||
+            container.querySelector('[class*="attachWrapper"]') ||
+            container.querySelector('[class*="channelAttach"]');
+        if (buttonContainer) {
+            console.log('SafeChat: Found Discord button container via form element');
+            return { container: buttonContainer, referenceElement: null };
+        }
+    }
+
+    // Strategy 2: Look for the input field's parent container with buttons
+    container = inputField.parentElement;
     let depth = 0;
     while (container && depth < 10) {
         // Look for a container that has buttons or icons
         const buttons = container.querySelectorAll('button');
-        if (buttons.length > 0) {
-            console.log('SafeChat: Found Discord button container via input parent');
+        const hasButtonClasses = container.className && (
+            container.className.includes('buttons') ||
+            container.className.includes('attachWrapper') ||
+            container.className.includes('channelAttach')
+        );
+
+        if (buttons.length > 0 || hasButtonClasses) {
+            console.log('SafeChat: Found Discord button container via parent traversal');
             return { container, referenceElement: null };
         }
         container = container.parentElement;
         depth++;
     }
 
-    // Last resort: use input field's parent
+    // Strategy 3: Create a wrapper container next to the input field
+    // This is better than using the input's direct parent
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display: inline-flex; align-items: center; margin-left: 8px;';
+
+    // Find the best place to insert the wrapper
+    const inputParent = inputField.parentElement;
+    if (inputParent) {
+        // Try to insert after the input field
+        if (inputField.nextSibling) {
+            inputParent.insertBefore(wrapper, inputField.nextSibling);
+        } else {
+            inputParent.appendChild(wrapper);
+        }
+        console.log('SafeChat: Created custom button container wrapper');
+        return { container: wrapper, referenceElement: null };
+    }
+
+    // Last resort: use input field's parent (should rarely reach here now)
     console.warn('SafeChat: Using input parent as button container (fallback)');
     return { container: inputField.parentElement, referenceElement: null };
 }

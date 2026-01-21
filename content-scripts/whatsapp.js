@@ -78,53 +78,76 @@ function findSendButton() {
 }
 
 /**
- * Find the WhatsApp button container (footer toolbar)
- * Returns an object with container and reference element for positioning
+ * Find the WhatsApp button container
+ * New approach: Start from input field and find its button row container
  * @returns {Object|null} - {container, referenceElement}
  */
 function findButtonContainer() {
-    // Try multiple footer selectors
-    const footer = document.querySelector('footer') ||
-        document.querySelector('[role="contentinfo"]');
+    // NEW APPROACH: Start from input field, not footer
+    const inputField = findInputField();
 
-    if (!footer) {
-        console.warn('SafeChat: Footer not found - WhatsApp may still be loading');
+    if (!inputField) {
+        console.warn('SafeChat: Input field not found');
         return null;
     }
 
-    console.log('SafeChat: Footer found');
+    console.log('SafeChat: Searching for button container from input field...');
 
-    // Find the send button to position our button before it
-    const sendButton = findSendButton();
+    // Go up from input to find container with send button
+    let current = inputField;
+    let depth = 0;
 
-    if (sendButton) {
-        console.log('SafeChat: Found send button, will insert before it');
+    while (current && depth < 20) {
+        // Look for send button in this container
+        const sendIcon = current.querySelector('span[data-icon="send"]');
+        const sendBtn = current.querySelector('button[aria-label="Send"]'); // Added robust selector
+
+        if (sendIcon || sendBtn) {
+            console.log('SafeChat: Found send button at depth', depth);
+
+            // Find the button element
+            let btnElement = sendIcon || sendBtn;
+            while (btnElement && btnElement.tagName !== 'BUTTON') {
+                btnElement = btnElement.parentElement;
+                if (!btnElement || btnElement === current) break;
+            }
+
+            if (btnElement && btnElement.tagName === 'BUTTON') {
+                console.log('SafeChat: Will insert before send button');
+                return {
+                    container: btnElement.parentElement,
+                    referenceElement: btnElement
+                };
+            }
+        }
+
+        current = current.parentElement;
+        depth++;
+    }
+
+    // Fallback 1: Generic Parent Container Strategy
+    // Try to find a suitable container by traversing up
+    if (inputField && inputField.parentElement) {
+        const grandparent = inputField.parentElement.parentElement;
+        // Prefer grandparent (usually the row), but accept parent if grandparent missing
+        const target = grandparent || inputField.parentElement;
+
+        console.log('SafeChat: Using generic container (fallback)', target.tagName, target.className);
         return {
-            container: sendButton.parentElement,
-            referenceElement: sendButton
+            container: target,
+            referenceElement: null // Append to end of row
         };
     }
 
-    // Fallback: Look for emoji button area
-    const emojiButton = footer.querySelector('span[data-icon="smiley"]') ||
-        footer.querySelector('span[data-icon="emoji"]');
-
-    if (emojiButton) {
-        let container = emojiButton.parentElement;
-        let depth = 0;
-        while (container && container !== footer && depth < 10) {
-            if (container.children.length >= 2) {
-                console.log('SafeChat: Found button container via emoji button');
-                return { container, referenceElement: null };
-            }
-            container = container.parentElement;
-            depth++;
-        }
+    // Fallback 2: Try footer
+    const footer = document.querySelector('footer');
+    if (footer) {
+        console.log('SafeChat: Using footer as fallback');
+        return { container: footer, referenceElement: null };
     }
 
-    // Last resort: use footer
-    console.warn('SafeChat: Using footer as button container (fallback)');
-    return { container: footer, referenceElement: null };
+    console.error('SafeChat: Could not find button container');
+    return null;
 }
 
 /**
